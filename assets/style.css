@@ -1,19 +1,21 @@
 /* ==========================================================================
-   PinPath — styles
-   Modern travel planner: white cards, blue accents, soft shadows.
+   PinPath — styles (dark theme)
+   Modern travel planner: dark slate surfaces, blue accents, soft shadows.
    ========================================================================== */
 
 :root {
-    --primary:   #2563eb;
-    --primary-d: #1d4ed8;
-    --success:   #16a34a;
-    --danger:    #dc2626;
-    --bg:        #f8fafc;
-    --card:      #ffffff;
-    --text:      #0f172a;
-    --muted:     #64748b;
-    --border:    #e2e8f0;
-    --shadow:    0 1px 3px rgba(15, 23, 42, .08), 0 8px 24px rgba(15, 23, 42, .06);
+    --primary:   #3b82f6;
+    --primary-d: #2563eb;
+    --success:   #22c55e;
+    --danger:    #ef4444;
+    --bg:        #0f172a;   /* page background  */
+    --card:      #1e293b;   /* cards / panels   */
+    --input:     #0f172a;   /* form fields      */
+    --hover:     #334155;   /* hover surfaces   */
+    --text:      #e2e8f0;
+    --muted:     #94a3b8;
+    --border:    #334155;
+    --shadow:    0 1px 3px rgba(0, 0, 0, .4), 0 10px 30px rgba(0, 0, 0, .35);
     --radius:    14px;
 }
 
@@ -32,6 +34,8 @@ body {
 a { color: var(--primary); text-decoration: none; }
 a:hover { text-decoration: underline; }
 
+::placeholder { color: var(--muted); opacity: 1; }
+
 /* ----- Top navigation ---------------------------------------------------- */
 .topnav {
     display: flex;
@@ -40,7 +44,7 @@ a:hover { text-decoration: underline; }
     padding: 12px 24px;
     background: var(--card);
     border-bottom: 1px solid var(--border);
-    box-shadow: 0 1px 2px rgba(15, 23, 42, .04);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, .3);
     position: sticky;
     top: 0;
     z-index: 1000;
@@ -54,7 +58,7 @@ a:hover { text-decoration: underline; }
     color: var(--muted);
     font-weight: 600;
 }
-.nav-links a:hover { background: #f1f5f9; text-decoration: none; }
+.nav-links a:hover { background: var(--hover); text-decoration: none; }
 .nav-links a.active { background: var(--primary); color: #fff; }
 
 /* ----- Builder controls -------------------------------------------------- */
@@ -79,7 +83,7 @@ a:hover { text-decoration: underline; }
     height: 30px;
     border: 1px solid var(--border);
     border-radius: 8px;
-    background: #fff;
+    background: var(--input);
     color: var(--muted);
     font-size: 1rem;
     line-height: 1;
@@ -87,7 +91,7 @@ a:hover { text-decoration: underline; }
     z-index: 1;
     transition: background .15s, color .15s;
 }
-.controls-close:hover { background: #fef2f2; color: var(--danger); border-color: #fecaca; }
+.controls-close:hover { background: rgba(239, 68, 68, .15); color: var(--danger); border-color: var(--danger); }
 
 /* Floating "reopen" button, shown only when the panel is hidden */
 .controls-open {
@@ -118,8 +122,8 @@ a:hover { text-decoration: underline; }
     font-size: .95rem;
 }
 .trip-label {
-    background: #dbeafe;
-    color: var(--primary-d);
+    background: rgba(59, 130, 246, .18);
+    color: #93c5fd;
     padding: 2px 10px;
     border-radius: 999px;
     font-size: .75rem;
@@ -135,11 +139,13 @@ a:hover { text-decoration: underline; }
     border: 1px solid var(--border);
     border-radius: 10px;
     font: inherit;
+    background: var(--input);
+    color: var(--text);
 }
 #search:focus {
     outline: none;
     border-color: var(--primary);
-    box-shadow: 0 0 0 3px rgba(37, 99, 235, .15);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, .25);
 }
 
 .search-results {
@@ -163,7 +169,7 @@ a:hover { text-decoration: underline; }
     font-size: .9rem;
 }
 .search-results li:hover,
-.search-results li.active { background: #eff6ff; }
+.search-results li.active { background: var(--hover); }
 .search-results li.loading,
 .search-results li.no-results { color: var(--muted); cursor: default; }
 
@@ -182,9 +188,10 @@ a:hover { text-decoration: underline; }
     border: 1px solid var(--border);
     border-radius: 9px;
     font: inherit;
-    background: #fff;
+    background: var(--input);
+    color: var(--text);
 }
-.field input[readonly] { background: #f1f5f9; color: var(--muted); }
+.field input[readonly] { background: #16213a; color: var(--muted); }
 .field input:focus { outline: none; border-color: var(--primary); }
 
 /* ----- Buttons ----------------------------------------------------------- */
@@ -192,7 +199,7 @@ a:hover { text-decoration: underline; }
     padding: 11px 20px;
     border: 1px solid var(--border);
     border-radius: 9px;
-    background: #fff;
+    background: var(--card);
     color: var(--text);
     font: inherit;
     font-weight: 700;
@@ -200,12 +207,12 @@ a:hover { text-decoration: underline; }
     transition: background .15s, opacity .15s;
     white-space: nowrap;
 }
-.btn:hover { background: #f1f5f9; text-decoration: none; }
+.btn:hover { background: var(--hover); text-decoration: none; }
 .btn-primary { background: var(--primary); border-color: var(--primary); color: #fff; }
 .btn-primary:hover { background: var(--primary-d); }
 .btn:disabled { opacity: .5; cursor: not-allowed; }
 .btn-danger { background: var(--danger); border-color: var(--danger); color: #fff; }
-.btn-danger:hover { background: #b91c1c; }
+.btn-danger:hover { background: #dc2626; }
 
 /* ----- Status message ---------------------------------------------------- */
 .status { margin: 10px 0 0; font-size: .88rem; min-height: 1.2em; }
@@ -213,7 +220,7 @@ a:hover { text-decoration: underline; }
 .status.error { color: var(--danger); }
 
 /* ----- Map --------------------------------------------------------------- */
-#map { width: 100%; height: 80vh; }
+#map { width: 100%; height: 80vh; background: var(--bg); }
 
 /* ----- Itineraries page -------------------------------------------------- */
 .page { max-width: 1100px; margin: 0 auto; padding: 28px 24px; }
@@ -232,6 +239,7 @@ a:hover { text-decoration: underline; }
 }
 .card {
     background: var(--card);
+    border: 1px solid var(--border);
     border-radius: var(--radius);
     box-shadow: var(--shadow);
     padding: 20px;
@@ -259,6 +267,7 @@ a:hover { text-decoration: underline; }
 
 .empty-state {
     background: var(--card);
+    border: 1px solid var(--border);
     border-radius: var(--radius);
     box-shadow: var(--shadow);
     padding: 48px 24px;
@@ -307,11 +316,13 @@ a:hover { text-decoration: underline; }
     font-size: .85rem;
     resize: vertical;
     box-sizing: border-box;
+    background: var(--input);
+    color: var(--text);
 }
 .popup-edit .pp-notes:focus {
     outline: none;
     border-color: var(--primary);
-    box-shadow: 0 0 0 2px rgba(37, 99, 235, .15);
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, .25);
 }
 .popup-actions {
     display: flex;
@@ -324,8 +335,8 @@ a:hover { text-decoration: underline; }
 .pp-save-state.ok  { color: var(--success); }
 .pp-save-state.err { color: var(--danger); }
 .pp-remove {
-    border: 1px solid #fecaca;
-    background: #fff;
+    border: 1px solid var(--danger);
+    background: transparent;
     color: var(--danger);
     border-radius: 8px;
     padding: 6px 12px;
@@ -334,7 +345,35 @@ a:hover { text-decoration: underline; }
     font-size: .82rem;
     cursor: pointer;
 }
-.pp-remove:hover { background: #fef2f2; }
+.pp-remove:hover { background: rgba(239, 68, 68, .15); }
+
+/* ----- Leaflet dark overrides ------------------------------------------- */
+/* Tint the OSM tiles toward dark so the light basemap isn't blinding. */
+.leaflet-tile { filter: brightness(.7) invert(1) contrast(.9) hue-rotate(180deg) saturate(.6); }
+/* Keep zoom/attribution controls readable. */
+.leaflet-bar a,
+.leaflet-bar a:hover {
+    background: var(--card);
+    color: var(--text);
+    border-bottom-color: var(--border);
+}
+.leaflet-control-attribution {
+    background: rgba(15, 23, 42, .8) !important;
+    color: var(--muted) !important;
+}
+.leaflet-control-attribution a { color: var(--primary) !important; }
+
+/* Dark popups */
+.leaflet-popup-content-wrapper,
+.leaflet-popup-tip {
+    background: var(--card);
+    color: var(--text);
+    box-shadow: var(--shadow);
+}
+.leaflet-popup-content-wrapper { border: 1px solid var(--border); }
+.leaflet-popup-content { color: var(--text); }
+.leaflet-container a.leaflet-popup-close-button { color: var(--muted); }
+.leaflet-container a.leaflet-popup-close-button:hover { color: var(--text); }
 
 /* ----- Responsive -------------------------------------------------------- */
 @media (max-width: 720px) {
