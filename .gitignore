@@ -1,0 +1,3 @@
+# Itinerary data is created at runtime — keep the folder, ignore its contents.
+/data/*
+!/data/.gitkeep

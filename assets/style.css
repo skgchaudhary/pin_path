@@ -1,0 +1,347 @@
+/* ==========================================================================
+   PinPath — styles
+   Modern travel planner: white cards, blue accents, soft shadows.
+   ========================================================================== */
+
+:root {
+    --primary:   #2563eb;
+    --primary-d: #1d4ed8;
+    --success:   #16a34a;
+    --danger:    #dc2626;
+    --bg:        #f8fafc;
+    --card:      #ffffff;
+    --text:      #0f172a;
+    --muted:     #64748b;
+    --border:    #e2e8f0;
+    --shadow:    0 1px 3px rgba(15, 23, 42, .08), 0 8px 24px rgba(15, 23, 42, .06);
+    --radius:    14px;
+}
+
+* { box-sizing: border-box; }
+
+html, body { height: 100%; }
+
+body {
+    margin: 0;
+    font-family: "Segoe UI", system-ui, -apple-system, Roboto, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.5;
+}
+
+a { color: var(--primary); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+/* ----- Top navigation ---------------------------------------------------- */
+.topnav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 24px;
+    background: var(--card);
+    border-bottom: 1px solid var(--border);
+    box-shadow: 0 1px 2px rgba(15, 23, 42, .04);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+.logo { font-size: 1.3rem; font-weight: 800; color: var(--primary); }
+.logo:hover { text-decoration: none; }
+.nav-links { display: flex; gap: 8px; }
+.nav-links a {
+    padding: 8px 16px;
+    border-radius: 9px;
+    color: var(--muted);
+    font-weight: 600;
+}
+.nav-links a:hover { background: #f1f5f9; text-decoration: none; }
+.nav-links a.active { background: var(--primary); color: #fff; }
+
+/* ----- Builder controls -------------------------------------------------- */
+.controls {
+    background: var(--card);
+    border-bottom: 1px solid var(--border);
+    position: relative;
+}
+.controls[hidden] { display: none; }
+.controls-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 16px 48px 16px 24px;
+}
+
+/* Close (✕) button, top-right of the panel */
+.controls-close {
+    position: absolute;
+    top: 10px;
+    right: 14px;
+    width: 30px;
+    height: 30px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: #fff;
+    color: var(--muted);
+    font-size: 1rem;
+    line-height: 1;
+    cursor: pointer;
+    z-index: 1;
+    transition: background .15s, color .15s;
+}
+.controls-close:hover { background: #fef2f2; color: var(--danger); border-color: #fecaca; }
+
+/* Floating "reopen" button, shown only when the panel is hidden */
+.controls-open {
+    position: fixed;
+    top: 70px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1100;
+    padding: 10px 18px;
+    border: none;
+    border-radius: 999px;
+    background: var(--primary);
+    color: #fff;
+    font: inherit;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: var(--shadow);
+    transition: background .15s;
+}
+.controls-open:hover { background: var(--primary-d); }
+.controls-open[hidden] { display: none; }
+
+.trip-banner {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 12px;
+    font-size: .95rem;
+}
+.trip-label {
+    background: #dbeafe;
+    color: var(--primary-d);
+    padding: 2px 10px;
+    border-radius: 999px;
+    font-size: .75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+.trip-count { color: var(--muted); }
+
+.search-wrap { position: relative; margin-bottom: 12px; }
+#search {
+    width: 100%;
+    padding: 12px 14px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    font: inherit;
+}
+#search:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, .15);
+}
+
+.search-results {
+    list-style: none;
+    margin: 4px 0 0;
+    padding: 6px;
+    position: absolute;
+    left: 0; right: 0;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    box-shadow: var(--shadow);
+    max-height: 280px;
+    overflow-y: auto;
+    z-index: 1200;
+}
+.search-results li {
+    padding: 9px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: .9rem;
+}
+.search-results li:hover,
+.search-results li.active { background: #eff6ff; }
+.search-results li.loading,
+.search-results li.no-results { color: var(--muted); cursor: default; }
+
+/* ----- Fields row -------------------------------------------------------- */
+.fields {
+    display: flex;
+    gap: 12px;
+    align-items: flex-end;
+    flex-wrap: wrap;
+}
+.field { display: flex; flex-direction: column; gap: 4px; }
+.field span { font-size: .78rem; font-weight: 600; color: var(--muted); }
+.field-grow { flex: 1 1 260px; }
+.field input {
+    padding: 10px 12px;
+    border: 1px solid var(--border);
+    border-radius: 9px;
+    font: inherit;
+    background: #fff;
+}
+.field input[readonly] { background: #f1f5f9; color: var(--muted); }
+.field input:focus { outline: none; border-color: var(--primary); }
+
+/* ----- Buttons ----------------------------------------------------------- */
+.btn {
+    padding: 11px 20px;
+    border: 1px solid var(--border);
+    border-radius: 9px;
+    background: #fff;
+    color: var(--text);
+    font: inherit;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background .15s, opacity .15s;
+    white-space: nowrap;
+}
+.btn:hover { background: #f1f5f9; text-decoration: none; }
+.btn-primary { background: var(--primary); border-color: var(--primary); color: #fff; }
+.btn-primary:hover { background: var(--primary-d); }
+.btn:disabled { opacity: .5; cursor: not-allowed; }
+.btn-danger { background: var(--danger); border-color: var(--danger); color: #fff; }
+.btn-danger:hover { background: #b91c1c; }
+
+/* ----- Status message ---------------------------------------------------- */
+.status { margin: 10px 0 0; font-size: .88rem; min-height: 1.2em; }
+.status.ok    { color: var(--success); }
+.status.error { color: var(--danger); }
+
+/* ----- Map --------------------------------------------------------------- */
+#map { width: 100%; height: 80vh; }
+
+/* ----- Itineraries page -------------------------------------------------- */
+.page { max-width: 1100px; margin: 0 auto; padding: 28px 24px; }
+.page-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 22px;
+}
+.page-head h1 { margin: 0; font-size: 1.6rem; }
+
+.cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 18px;
+}
+.card {
+    background: var(--card);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+}
+.card h2 { margin: 0 0 4px; font-size: 1.15rem; }
+.card-count { margin: 0 0 14px; color: var(--primary); font-weight: 700; font-size: .9rem; }
+.card-meta {
+    margin: 0 0 16px;
+    display: grid;
+    gap: 6px;
+    font-size: .82rem;
+}
+.card-meta div { display: flex; justify-content: space-between; gap: 10px; }
+.card-meta dt { color: var(--muted); margin: 0; }
+.card-meta dd { margin: 0; font-weight: 600; }
+.card-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: auto;
+}
+.card-actions .card-open { flex: 1; text-align: center; }
+.card-actions form { margin: 0; }
+
+.empty-state {
+    background: var(--card);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 48px 24px;
+    text-align: center;
+}
+.empty-state p { margin: 0 0 8px; }
+.muted { color: var(--muted); }
+
+/* ----- Footer ------------------------------------------------------------ */
+.site-footer {
+    text-align: center;
+    padding: 18px 16px;
+    color: var(--muted);
+    font-size: .85rem;
+    background: var(--card);
+    border-top: 1px solid var(--border);
+}
+
+/* ----- Map popups -------------------------------------------------------- */
+.popup strong { display: block; margin-bottom: 4px; font-size: 1rem; }
+.popup small { color: var(--muted); }
+
+/* Interactive saved-pin popup */
+.popup-edit { min-width: 220px; }
+.popup-coords {
+    color: var(--muted);
+    font-size: .8rem;
+    margin-bottom: 8px;
+}
+.popup-visited {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-size: .9rem;
+    font-weight: 600;
+    margin-bottom: 8px;
+    cursor: pointer;
+}
+.popup-visited input { width: 16px; height: 16px; cursor: pointer; }
+.popup-edit .pp-notes {
+    width: 100%;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 7px 9px;
+    font: inherit;
+    font-size: .85rem;
+    resize: vertical;
+    box-sizing: border-box;
+}
+.popup-edit .pp-notes:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 2px rgba(37, 99, 235, .15);
+}
+.popup-actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-top: 9px;
+}
+.pp-save-state { font-size: .78rem; color: var(--muted); }
+.pp-save-state.ok  { color: var(--success); }
+.pp-save-state.err { color: var(--danger); }
+.pp-remove {
+    border: 1px solid #fecaca;
+    background: #fff;
+    color: var(--danger);
+    border-radius: 8px;
+    padding: 6px 12px;
+    font: inherit;
+    font-weight: 700;
+    font-size: .82rem;
+    cursor: pointer;
+}
+.pp-remove:hover { background: #fef2f2; }
+
+/* ----- Responsive -------------------------------------------------------- */
+@media (max-width: 720px) {
+    .fields { flex-direction: column; align-items: stretch; }
+    .field-grow, .field { flex: 1 1 auto; }
+    #addBtn { width: 100%; }
+    .topnav { padding: 12px 16px; }
+    .controls-inner { padding: 14px 16px; }
+    #map { height: 70vh; }
+}
