@@ -1,0 +1,7 @@
+.git
+.gitignore
+.dockerignore
+Dockerfile
+# Don't bake local/test itineraries into the image (created at runtime).
+data/*
+!data/.gitkeep
