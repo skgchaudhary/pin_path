@@ -79,23 +79,57 @@
         }).addTo(map);
 
         map.on("click", onMapClick);
-        renderSavedLocations();
+
+        var it = CFG.itinerary;
+        if (it && Array.isArray(it.locations) && it.locations.length) {
+            renderSavedLocations();          // center on the last saved stop
+        } else {
+            locateUser();                    // no itinerary -> use current location
+        }
     }
 
-    // Draw markers for every saved location of the loaded itinerary.
+    // Draw markers for every saved location, then center on the LAST one added.
     function renderSavedLocations() {
         var it = CFG.itinerary;
         if (!it || !Array.isArray(it.locations) || !it.locations.length) return;
 
-        var bounds = [];
-        it.locations.forEach(function (raw) {
-            var loc = withDefaults(raw);
-            addSavedMarker(loc);
-            bounds.push([loc.lat, loc.lng]);
-        });
+        var locs = it.locations.map(withDefaults);
+        locs.forEach(addSavedMarker);
 
-        if (bounds.length === 1) map.setView(bounds[0], 13);
-        else map.fitBounds(bounds, { padding: [50, 50], maxZoom: 14 });
+        // Center on the most recently added location, zoomed in.
+        var last = locs[locs.length - 1];
+        map.setView([last.lat, last.lng], 13);
+    }
+
+    // With no itinerary loaded, try the browser's geolocation and zoom in there.
+    // Falls back to the default India view if denied/unavailable, and reports why.
+    function locateUser() {
+        if (!navigator.geolocation) {
+            setStatus("Geolocation isn't supported by this browser.", "error");
+            return;
+        }
+        setStatus("Locating you… (allow the location prompt)");
+
+        navigator.geolocation.getCurrentPosition(
+            function (pos) {
+                // Only recenter if the user hasn't already picked a spot.
+                if (!selection) {
+                    map.setView([pos.coords.latitude, pos.coords.longitude], 16);
+                }
+                setStatus("");
+            },
+            function (err) {
+                var msg = "Couldn't get your location — showing the default map.";
+                if (err && err.code === 1) {
+                    msg = "Location permission denied — showing the default map.";
+                } else if (err && err.code === 3) {
+                    msg = "Location request timed out — showing the default map.";
+                }
+                setStatus(msg, "error");
+            },
+            // High accuracy off = faster, more reliable indoors; cached fix OK for 5 min.
+            { enableHighAccuracy: false, timeout: 10000, maximumAge: 300000 }
+        );
     }
 
     // Create (or recreate) a marker for a saved location with its popup.

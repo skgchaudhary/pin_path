@@ -37,7 +37,7 @@ usort($itineraries, static fn($a, $b) => strcmp($b['updated_at'], $a['updated_at
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PinPath — Itineraries</title>
-    <link rel="stylesheet" href="assets/style.css">
+    <link rel="stylesheet" href="assets/style.css?v=<?= @filemtime(__DIR__ . '/assets/style.css') ?>">
 </head>
 <body>
 
