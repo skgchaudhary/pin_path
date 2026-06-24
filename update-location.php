@@ -1,18 +1,13 @@
 <?php
 /**
- * update-location.php — Update or delete a single location inside an itinerary.
+ * update-location.php — Update or delete a single location.
  *
- * Accepts a POST JSON body:
+ * POST JSON body:
+ *   Update: { "itinerary_id":"...", "location_id":"loc_001",
+ *             "visited":true, "notes":"...", "action":"update" }
+ *   Delete: { "itinerary_id":"...", "location_id":"loc_001", "action":"delete" }
  *
- *   Update:
- *     { "itinerary_id":"delhijuly2026", "location_id":"loc_001",
- *       "visited":true, "notes":"Visited in evening", "action":"update" }
- *
- *   Delete:
- *     { "itinerary_id":"delhijuly2026", "location_id":"loc_001", "action":"delete" }
- *
- * Responds with JSON. Mutating a location also bumps the location's
- * updated_at and the itinerary's root updated_at.
+ * Responds with JSON. Storage is PostgreSQL (see store.php).
  */
 
 declare(strict_types=1);
@@ -20,7 +15,6 @@ require __DIR__ . '/helpers.php';
 
 header('Content-Type: application/json; charset=utf-8');
 
-/** Emit a JSON response and stop. */
 function respond(array $payload, int $status = 200): never
 {
     http_response_code($status);
@@ -32,11 +26,11 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     respond(['success' => false, 'error' => 'Method not allowed'], 405);
 }
 
-// --- Parse the JSON body (fall back to form-encoded just in case) ----------
+// --- Parse JSON body (tolerate form-encoded) -------------------------------
 $raw = file_get_contents('php://input');
 $in  = json_decode((string) $raw, true);
 if (!is_array($in)) {
-    $in = $_POST; // tolerate application/x-www-form-urlencoded
+    $in = $_POST;
 }
 
 $itineraryId = sanitizeFilename(trim((string) ($in['itinerary_id'] ?? '')));
@@ -51,74 +45,39 @@ if ($locationId === '' || !preg_match('/^[A-Za-z0-9_\-]+$/', $locationId)) {
     respond(['success' => false, 'error' => 'Invalid location id.'], 422);
 }
 
-$path = itineraryPath($itineraryId); // null if slug is unsafe (../, etc.)
-if ($path === null || !is_file($path)) {
-    respond(['success' => false, 'error' => 'Itinerary not found.'], 404);
-}
-
-$itinerary = loadJson($path);
-$locations = $itinerary['locations'] ?? [];
-
-// --- Find the target location ----------------------------------------------
-$index = null;
-foreach ($locations as $i => $loc) {
-    if (($loc['id'] ?? null) === $locationId) {
-        $index = $i;
-        break;
+try {
+    if ($action === 'delete') {
+        // --- Remove the location --------------------------------------------
+        if (!deleteLocation($itineraryId, $locationId)) {
+            respond(['success' => false, 'error' => 'Location not found.'], 404);
+        }
+        respond([
+            'success'        => true,
+            'action'         => 'delete',
+            'location_id'    => $locationId,
+            'location_count' => countLocations($itineraryId),
+        ]);
     }
-}
-if ($index === null) {
-    respond(['success' => false, 'error' => 'Location not found.'], 404);
-}
 
-$now = date('Y-m-d H:i:s');
-
-if ($action === 'delete') {
-    // --- Remove the location ------------------------------------------------
-    array_splice($locations, $index, 1);
-    $itinerary['locations']  = $locations;
-    $itinerary['updated_at'] = $now;
-
-    if (!saveJson($path, $itinerary)) {
-        respond(['success' => false, 'error' => 'Failed to save itinerary.'], 500);
+    // --- Default: update visited / notes -----------------------------------
+    $fields = [];
+    if (array_key_exists('visited', $in)) {
+        $fields['visited'] = filter_var($in['visited'], FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE) ?? false;
     }
+    if (array_key_exists('notes', $in)) {
+        $fields['notes'] = trim((string) $in['notes']);
+    }
+
+    $location = updateLocationFields($itineraryId, $locationId, $fields);
+    if ($location === null) {
+        respond(['success' => false, 'error' => 'Location not found.'], 404);
+    }
+
     respond([
-        'success'        => true,
-        'action'         => 'delete',
-        'location_id'    => $locationId,
-        'location_count' => count($locations),
-        'updated_at'     => $now,
+        'success'  => true,
+        'action'   => 'update',
+        'location' => $location,
     ]);
+} catch (Throwable $e) {
+    respond(['success' => false, 'error' => 'Database error: ' . $e->getMessage()], 500);
 }
-
-// --- Default: update visited / notes ---------------------------------------
-$loc = $locations[$index];
-
-// Apply defaults for legacy records missing the new fields.
-$loc['visited']    = $loc['visited']    ?? false;
-$loc['notes']      = $loc['notes']      ?? '';
-$loc['updated_at'] = $loc['updated_at'] ?? ($loc['added_at'] ?? $now);
-
-// Only overwrite fields that were actually provided.
-if (array_key_exists('visited', $in)) {
-    $loc['visited'] = filter_var($in['visited'], FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE) ?? false;
-}
-if (array_key_exists('notes', $in)) {
-    $loc['notes'] = trim((string) $in['notes']);
-}
-
-$loc['updated_at']       = $now;
-$locations[$index]       = $loc;
-$itinerary['locations']  = $locations;
-$itinerary['updated_at'] = $now;
-
-if (!saveJson($path, $itinerary)) {
-    respond(['success' => false, 'error' => 'Failed to save itinerary.'], 500);
-}
-
-respond([
-    'success'     => true,
-    'action'      => 'update',
-    'location'    => $loc,
-    'updated_at'  => $now,
-]);

@@ -1,6 +1,6 @@
 <?php
 /**
- * get-itinerary.php — Return the JSON content of one itinerary.
+ * get-itinerary.php — Return one itinerary as JSON.
  *
  * Usage:  get-itinerary.php?itinerary=pune-food-trip
  * Output: application/json
@@ -11,20 +11,26 @@ require __DIR__ . '/helpers.php';
 
 header('Content-Type: application/json; charset=utf-8');
 
-$slug = (string) ($_GET['itinerary'] ?? '');
-$path = itineraryPath($slug);
+$slug = sanitizeFilename((string) ($_GET['itinerary'] ?? ''));
 
-if ($path === null || !is_file($path)) {
-    http_response_code(404);
-    echo json_encode(
-        ['success' => false, 'error' => 'Itinerary not found.'],
-        JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE
-    );
+if ($slug === '') {
+    http_response_code(400);
+    echo json_encode(['success' => false, 'error' => 'Missing itinerary id.'], JSON_PRETTY_PRINT);
     exit;
 }
 
-// Stream the stored JSON straight back (already pretty-printed on save).
-echo json_encode(
-    loadJson($path),
-    JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES
-);
+try {
+    $itinerary = getItinerary($slug);
+} catch (Throwable $e) {
+    http_response_code(500);
+    echo json_encode(['success' => false, 'error' => 'Database error: ' . $e->getMessage()], JSON_PRETTY_PRINT);
+    exit;
+}
+
+if ($itinerary === null) {
+    http_response_code(404);
+    echo json_encode(['success' => false, 'error' => 'Itinerary not found.'], JSON_PRETTY_PRINT);
+    exit;
+}
+
+echo json_encode($itinerary, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);

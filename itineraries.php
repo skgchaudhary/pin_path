@@ -9,27 +9,14 @@
 declare(strict_types=1);
 require __DIR__ . '/helpers.php';
 
-// Gather all itinerary files (data dir may not exist yet).
-$files = is_dir(DATA_DIR) ? glob(DATA_DIR . DIRECTORY_SEPARATOR . '*.json') : [];
-$files = $files ?: [];
-
+// Load all itineraries from the database (newest update first).
 $itineraries = [];
-foreach ($files as $file) {
-    $data = loadJson($file);
-    if (!$data) {
-        continue;
-    }
-    $itineraries[] = [
-        'id'         => $data['id'] ?? sanitizeFilename(basename($file, '.json')),
-        'name'       => $data['name'] ?? basename($file, '.json'),
-        'count'      => count($data['locations'] ?? []),
-        'created_at' => $data['created_at'] ?? '',
-        'updated_at' => $data['updated_at'] ?? '',
-    ];
+$dbError     = null;
+try {
+    $itineraries = listItineraries();
+} catch (Throwable $e) {
+    $dbError = $e->getMessage();
 }
-
-// Most recently updated first.
-usort($itineraries, static fn($a, $b) => strcmp($b['updated_at'], $a['updated_at']));
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -55,7 +42,12 @@ usort($itineraries, static fn($a, $b) => strcmp($b['updated_at'], $a['updated_at
         <a href="index.php" class="btn btn-primary">+ New Itinerary</a>
     </header>
 
-    <?php if (empty($itineraries)): ?>
+    <?php if ($dbError !== null): ?>
+        <div class="empty-state">
+            <p class="db-error">⚠ Database error</p>
+            <p class="muted"><?= e($dbError) ?></p>
+        </div>
+    <?php elseif (empty($itineraries)): ?>
         <div class="empty-state">
             <p>No itineraries yet.</p>
             <p class="muted">Open the map, search a place, and add your first stop.</p>

@@ -275,6 +275,16 @@ a:hover { text-decoration: underline; }
 }
 .empty-state p { margin: 0 0 8px; }
 .muted { color: var(--muted); }
+.db-error {
+    color: var(--danger);
+    font-weight: 600;
+    background: rgba(239, 68, 68, .12);
+    border: 1px solid rgba(239, 68, 68, .35);
+    border-radius: 10px;
+    padding: 10px 14px;
+    margin: 0 0 12px;
+    word-break: break-word;
+}
 
 /* ----- Footer ------------------------------------------------------------ */
 .site-footer {

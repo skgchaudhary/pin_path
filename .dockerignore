@@ -2,6 +2,8 @@
 .gitignore
 .dockerignore
 Dockerfile
+# Never bake secrets into the image — DATABASE_URL is set as a runtime env var.
+.env
 # Don't bake local/test itineraries into the image (created at runtime).
 data/*
 !data/.gitkeep

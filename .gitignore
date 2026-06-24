@@ -1,3 +1,6 @@
-# Itinerary data is created at runtime — keep the folder, ignore its contents.
+# Local environment / secrets — never commit the DB connection string.
+.env
+
+# Legacy file-based itinerary data (now stored in PostgreSQL).
 /data/*
 !/data/.gitkeep

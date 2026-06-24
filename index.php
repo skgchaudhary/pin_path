@@ -13,9 +13,17 @@
 declare(strict_types=1);
 require __DIR__ . '/helpers.php';
 
-$slug      = (string) ($_GET['itinerary'] ?? '');
-$path      = itineraryPath($slug);
-$itinerary = ($path !== null && is_file($path)) ? loadJson($path) : null;
+$slug      = sanitizeFilename((string) ($_GET['itinerary'] ?? ''));
+$itinerary = null;
+$dbError   = null;
+
+if ($slug !== '') {
+    try {
+        $itinerary = getItinerary($slug);
+    } catch (Throwable $e) {
+        $dbError = $e->getMessage();
+    }
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -43,6 +51,9 @@ $itinerary = ($path !== null && is_file($path)) ? loadJson($path) : null;
 <section class="controls" id="controls">
     <button type="button" id="controlsClose" class="controls-close" aria-label="Hide panel" title="Hide panel">✕</button>
     <div class="controls-inner">
+        <?php if ($dbError !== null): ?>
+            <p class="db-error">⚠ Database error: <?= e($dbError) ?></p>
+        <?php endif; ?>
         <?php if ($itinerary): ?>
             <div class="trip-banner">
                 <span class="trip-label">Editing</span>

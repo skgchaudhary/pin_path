@@ -1,11 +1,9 @@
 <?php
 /**
- * delete-itinerary.php — Delete an entire itinerary file.
+ * delete-itinerary.php — Delete an entire itinerary (and its locations).
  *
  * POST: itinerary_id=<slug>
- *
- * Validates the slug as a safe filename (blocks ../ traversal), deletes
- * data/<slug>.json if it exists, then redirects back to the list.
+ * Redirects back to the list afterwards.
  */
 
 declare(strict_types=1);
@@ -17,11 +15,13 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 }
 
 $slug = sanitizeFilename(trim((string) ($_POST['itinerary_id'] ?? '')));
-$path = $slug !== '' ? itineraryPath($slug) : null;
 
-// Only delete a real file inside the data directory.
-if ($path !== null && is_file($path)) {
-    unlink($path);
+if ($slug !== '') {
+    try {
+        deleteItinerary($slug); // locations cascade-delete via FK
+    } catch (Throwable $e) {
+        // Best-effort: fall through to the list even if the delete failed.
+    }
 }
 
 header('Location: itineraries.php');
