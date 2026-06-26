@@ -155,7 +155,7 @@
                 } else {
                     youMarker = L.circleMarker(ll, {
                         radius: 7, color: "#fff", weight: 2,
-                        fillColor: "#2563eb", fillOpacity: 1,
+                        fillColor: "#16a34a", fillOpacity: 1,
                     }).addTo(map).bindPopup("You are here");
                 }
                 if (announce) setStatus("");
