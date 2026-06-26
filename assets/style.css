@@ -373,6 +373,17 @@ a:hover { text-decoration: underline; }
 }
 .leaflet-control-attribution a { color: var(--primary) !important; }
 
+/* "Center on my location" control button */
+.leaflet-bar a.pp-locate {
+    font-size: 18px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--primary);
+}
+.leaflet-bar a.pp-locate:hover { background: var(--hover); color: var(--text); }
+
 /* Dark popups */
 .leaflet-popup-content-wrapper,
 .leaflet-popup-tip {

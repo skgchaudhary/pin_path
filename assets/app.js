@@ -79,6 +79,7 @@
         }).addTo(map);
 
         map.on("click", onMapClick);
+        addLocateControl();                  // "center on my location" button
 
         var it = CFG.itinerary;
         if (it && Array.isArray(it.locations) && it.locations.length) {
@@ -86,6 +87,28 @@
         } else {
             locateUser();                    // no itinerary -> use current location
         }
+    }
+
+    // A Leaflet control button that recenters the map on the user's location.
+    function addLocateControl() {
+        var LocateControl = L.Control.extend({
+            options: { position: "topleft" },
+            onAdd: function () {
+                var bar = L.DomUtil.create("div", "leaflet-bar");
+                var btn = L.DomUtil.create("a", "pp-locate", bar);
+                btn.href = "#";
+                btn.title = "Center on my location";
+                btn.setAttribute("role", "button");
+                btn.setAttribute("aria-label", "Center on my location");
+                btn.innerHTML = "◎";
+                L.DomEvent.on(btn, "click", function (e) {
+                    L.DomEvent.stop(e);          // don't pan/zoom the map
+                    goToCurrentLocation(16, true, false);
+                });
+                return bar;
+            },
+        });
+        map.addControl(new LocateControl());
     }
 
     // Draw markers for every saved location, then center on the LAST one added.
@@ -101,35 +124,57 @@
         map.setView([last.lat, last.lng], 13);
     }
 
-    // With no itinerary loaded, try the browser's geolocation and zoom in there.
-    // Falls back to the default India view if denied/unavailable, and reports why.
-    function locateUser() {
+    // Marker showing the user's current position (created on first locate).
+    var youMarker = null;
+
+    /**
+     * Center the map on the device's current location.
+     * @param {number}  zoom            target zoom level
+     * @param {boolean} announce        show status/error messages
+     * @param {boolean} respectSelection if true, don't recenter when a pin is already chosen
+     */
+    function goToCurrentLocation(zoom, announce, respectSelection) {
         if (!navigator.geolocation) {
-            setStatus("Geolocation isn't supported by this browser.", "error");
+            if (announce) setStatus("Geolocation isn't supported by this browser.", "error");
             return;
         }
-        setStatus("Locating you… (allow the location prompt)");
+        if (announce) setStatus("Locating you… (allow the location prompt)");
 
         navigator.geolocation.getCurrentPosition(
             function (pos) {
-                // Only recenter if the user hasn't already picked a spot.
-                if (!selection) {
-                    map.setView([pos.coords.latitude, pos.coords.longitude], 16);
+                if (respectSelection && selection) {
+                    if (announce) setStatus("");
+                    return; // user already picked a spot — leave the view alone
                 }
-                setStatus("");
+                var ll = [pos.coords.latitude, pos.coords.longitude];
+                map.setView(ll, zoom || 16);
+
+                // Drop / move a "you are here" dot.
+                if (youMarker) {
+                    youMarker.setLatLng(ll);
+                } else {
+                    youMarker = L.circleMarker(ll, {
+                        radius: 7, color: "#fff", weight: 2,
+                        fillColor: "#2563eb", fillOpacity: 1,
+                    }).addTo(map).bindPopup("You are here");
+                }
+                if (announce) setStatus("");
             },
             function (err) {
-                var msg = "Couldn't get your location — showing the default map.";
-                if (err && err.code === 1) {
-                    msg = "Location permission denied — showing the default map.";
-                } else if (err && err.code === 3) {
-                    msg = "Location request timed out — showing the default map.";
-                }
-                setStatus(msg, "error");
+                var msg = "Couldn't get your location.";
+                if (err && err.code === 1) msg = "Location permission denied.";
+                else if (err && err.code === 3) msg = "Location request timed out.";
+                if (announce) setStatus(msg, "error");
             },
             // High accuracy off = faster, more reliable indoors; cached fix OK for 5 min.
             { enableHighAccuracy: false, timeout: 10000, maximumAge: 300000 }
         );
+    }
+
+    // On a fresh page with no itinerary, auto-center on the user (unless they
+    // pick a spot first).
+    function locateUser() {
+        goToCurrentLocation(16, true, true);
     }
 
     // Create (or recreate) a marker for a saved location with its popup.
